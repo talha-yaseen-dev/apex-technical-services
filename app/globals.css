@@ -1,0 +1,508 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------
+   Design tokens — for the Apex Technical Services prototype.
+   ------------------------------------------------------------------ */
+:root {
+  --ink: oklch(0.23 0.012 255);
+  --ink2: oklch(0.34 0.012 255);
+  --paper: oklch(0.986 0.003 95);
+  --paper2: oklch(0.965 0.004 95);
+  --panel: oklch(0.955 0.005 255);
+  --line: oklch(0.9 0.005 255);
+  --line2: oklch(0.82 0.007 255);
+  --muted: oklch(0.5 0.012 255);
+  /* Brand gold, taken from the Apex badge. Measured contrast ratios:
+       --accent      #d09a35  ink on it 6.73 ✓ · white on it 2.41 ✗ · on paper 2.41 ✗
+       --accent-ink  #7f5314  on paper 6.39 ✓ · white on it 6.39 ✓
+       --accent-soft #faefd6  ink on it 14.8 ✓
+       --accent-lite #ebc573  on ink 10.3 ✓
+     So: --accent is a FILL colour and always carries dark text; anything that is
+     itself text or an icon on a light background uses --accent-ink. */
+  --accent: oklch(0.72 0.13 79);
+  --accent-hover: oklch(0.64 0.125 76);
+  --accent-ink: oklch(0.48 0.095 70);
+  --accent-soft: oklch(0.955 0.035 88);
+  /* WhatsApp green, darkened from the brand #1fa855: white text on that is
+     only 3.09:1. #15803d gives 5.02:1 and still reads as WhatsApp. */
+  --wa: #15803d;
+  --wa-hover: #126a33;
+
+  /* Sticky-header height, used to size the home hero to exactly one screen.
+     Measured: 33px utility bar + 68px main bar + 1px border. Only relied on
+     at >=1100px, where both header rows are guaranteed to stay single-line. */
+  --header-h: 102px;
+
+  /* Shades used inside the dark (ink-background) sections. */
+  --accent-lite: oklch(0.84 0.11 85);
+  --dark-card: oklch(0.27 0.014 255);
+  --dark-line: oklch(0.4 0.02 255);
+  --dark-line2: oklch(0.34 0.014 255);
+  --dark-text: oklch(0.86 0.008 255);
+  --dark-text2: oklch(0.78 0.01 255);
+  --dark-text3: oklch(0.66 0.01 255);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), system-ui, sans-serif;
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+  a {
+    color: var(--accent-ink);
+    text-decoration: none;
+  }
+  a:hover {
+    /* not --accent: gold on paper is 2.41:1 */
+    color: var(--accent-hover);
+  }
+  img {
+    max-width: 100%;
+    display: block;
+  }
+  button {
+    font-family: inherit;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  :focus-visible {
+    /* accent-ink: a focus ring needs 3:1 against the page, brand gold gives 2.4 */
+    outline: 2.5px solid var(--accent-ink);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  /* --- layout ---------------------------------------------------- */
+  .wrap {
+    max-width: 1220px;
+    margin-inline: auto;
+    padding-inline: 22px;
+  }
+  /* Hero rhythm is height-aware as well as width-aware: on short laptop screens
+     the vh term wins, so the hero still fits one viewport. */
+  .sec-hero {
+    padding-block: clamp(24px, min(4vw, 5vh), 52px);
+  }
+  /* On desktop the home hero occupies exactly one screen, no scrolling needed. */
+  @media (min-width: 1100px) {
+    .hero-fit {
+      min-height: calc(100svh - var(--header-h));
+      display: flex;
+      align-items: center;
+    }
+  }
+  /* Keeps the hero elevation drawing from driving the hero taller than a screen. */
+  .hero-art {
+    width: 100%;
+    max-width: 460px;
+    margin-inline: auto;
+  }
+  .sec-lg {
+    padding-block: clamp(44px, 6vw, 84px);
+  }
+  .sec {
+    padding-block: clamp(44px, 6vw, 80px);
+  }
+  .sec-md {
+    padding-block: clamp(40px, 5vw, 72px);
+  }
+  .sec-sm {
+    padding-block: clamp(36px, 5vw, 64px);
+  }
+  .sec-xs {
+    padding-block: clamp(28px, 4vw, 52px);
+  }
+  /* auto-fit grids, matching the design's minmax breakpoints */
+  .grid-auto {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(var(--min, 280px), 1fr));
+  }
+
+  /* --- typography ------------------------------------------------ */
+  .eyebrow {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    /* accent-ink, not accent — brand gold on paper is only 2.4:1 */
+    color: var(--accent-ink);
+  }
+  .mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+  /* NB: these are deliberately NOT named .h-1 … .h-4 — those collide with
+     Tailwind's height utilities (h-1 = height:0.25rem), which sit in a later
+     layer and would win, squashing every heading. */
+  .title-hero {
+    /* Capped by height too — the hero H1 sits in a ~540px column, so an
+       unconstrained size wraps to four lines and blows past one screen. */
+    font-size: clamp(34px, min(4.4vw, 6.2vh), 52px);
+    font-weight: 800;
+  }
+  .title-page {
+    font-size: clamp(34px, 5vw, 58px);
+    font-weight: 800;
+  }
+  .title-1 {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+  }
+  .title-2 {
+    font-size: clamp(26px, 3.6vw, 40px);
+    font-weight: 800;
+  }
+  .title-3 {
+    font-size: clamp(24px, 3.2vw, 34px);
+    font-weight: 800;
+  }
+  .title-4 {
+    font-size: clamp(23px, 3vw, 32px);
+    font-weight: 800;
+  }
+  .lede {
+    font-size: clamp(16px, 1.9vw, 19px);
+    color: var(--ink2);
+  }
+
+  /* --- buttons --------------------------------------------------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease,
+      box-shadow 0.18s ease, color 0.18s ease;
+  }
+  .btn-sm {
+    padding: 14px 22px;
+    gap: 9px;
+  }
+  /* Filled buttons lift very slightly and cast a soft, tinted shadow on hover. */
+  .btn-wa:hover,
+  .btn-ink:hover,
+  .btn-accent:hover {
+    transform: translateY(-1.5px);
+  }
+  .btn-wa {
+    background: var(--wa);
+    color: #fff;
+    box-shadow: 0 10px 24px -16px color-mix(in oklab, var(--wa) 70%, transparent);
+  }
+  .btn-wa:hover {
+    background: var(--wa-hover);
+    color: #fff;
+    box-shadow: 0 14px 30px -14px color-mix(in oklab, var(--wa) 65%, transparent);
+  }
+  .btn-ink {
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 10px 24px -16px oklch(0.2 0.02 255 / 0.55);
+  }
+  .btn-ink:hover {
+    color: var(--paper);
+    background: var(--ink2);
+    box-shadow: 0 14px 30px -14px oklch(0.2 0.02 255 / 0.5);
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: var(--ink);
+    box-shadow: 0 10px 24px -16px color-mix(in oklab, var(--accent) 70%, transparent);
+  }
+  .btn-accent:hover {
+    background: var(--accent-hover);
+    color: var(--ink);
+    box-shadow: 0 14px 30px -14px color-mix(in oklab, var(--accent) 60%, transparent);
+  }
+  .btn-outline {
+    border: 1px solid var(--line2);
+    color: var(--ink);
+  }
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  /* --- surfaces -------------------------------------------------- */
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--paper);
+    padding: 24px;
+  }
+  .card-link {
+    color: var(--ink);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card-link:hover {
+    color: var(--ink);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 22px 48px -30px oklch(0.2 0.02 255 / 0.55), 0 6px 16px -12px oklch(0.2 0.02 255 / 0.3);
+  }
+  .chip {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--ink2);
+    background: var(--panel);
+    border-radius: 100px;
+    padding: 4px 10px;
+  }
+  .pill {
+    border: 1px solid var(--line2);
+    border-radius: 100px;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  .tick {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+  }
+  .field {
+    border: 1px solid var(--line2);
+    border-radius: 11px;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    background: var(--paper);
+    color: var(--ink);
+    width: 100%;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+  .field:hover {
+    border-color: var(--muted);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--accent-ink);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .field-label {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  /* Gallery card: image sits in a fixed-ratio window and eases in on hover. */
+  .photo-card {
+    border: 1px solid var(--line2);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--paper);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .photo-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 22px 48px -30px oklch(0.2 0.02 255 / 0.55), 0 6px 16px -12px oklch(0.2 0.02 255 / 0.3);
+  }
+  .photo-card img {
+    transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .photo-card:hover img {
+    transform: scale(1.045);
+  }
+  .photo-tag {
+    position: absolute;
+    top: 12px;
+    inset-inline-start: 12px;
+    z-index: 1;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    background: color-mix(in oklab, var(--paper) 90%, transparent);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 4px 10px;
+  }
+  .arrow-link {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  /* --- responsive helpers (nav switches to drawer below 1100px) --- */
+  .desk-only {
+    display: flex;
+  }
+  .mob-only {
+    display: none;
+  }
+}
+
+@media (max-width: 1099px) {
+  .desk-only {
+    display: none !important;
+  }
+  .mob-only {
+    display: flex;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Motion. Everything here is gated behind `no-preference`, so visitors
+   who ask their OS for reduced motion get a completely still site.
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Scroll-reveal — driven by components/ScrollReveal.tsx, which only ever
+     tags elements that start below the fold. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    will-change: opacity, transform;
+  }
+  .reveal.in-view {
+    animation: reveal-up 0.65s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+  @keyframes reveal-up {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Services mega-menu drops in. */
+  #svc-menu {
+    animation: menu-pop 0.19s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    transform-origin: top center;
+  }
+  @keyframes menu-pop {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.985);
+    }
+  }
+
+  /* Mobile drawer slides in from the page edge (direction-aware). */
+  #mobile-drawer {
+    animation: drawer-in 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+  @keyframes drawer-in {
+    from {
+      opacity: 0.4;
+      transform: translateX(100%);
+    }
+  }
+  [dir='rtl'] #mobile-drawer {
+    animation-name: drawer-in-rtl;
+  }
+  @keyframes drawer-in-rtl {
+    from {
+      opacity: 0.4;
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Lightbox fades in; the photo eases up to size. */
+  #lightbox {
+    animation: lb-fade 0.2s ease both;
+  }
+  #lightbox figure {
+    animation: lb-zoom 0.24s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+  @keyframes lb-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes lb-zoom {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  /* Tactile press feedback on the main buttons. */
+  .btn:active,
+  .btn-wa:active,
+  .btn-ink:active,
+  .btn-accent:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+   RTL (Arabic) adjustments. The markup already uses logical utilities
+   (start/end, ms/me, ps/pe), so `dir="rtl"` handles most of the flip.
+   These rules fix the few things direction alone does not.
+   ------------------------------------------------------------------ */
+[dir='rtl'] h1,
+[dir='rtl'] h2,
+[dir='rtl'] h3,
+[dir='rtl'] h4 {
+  letter-spacing: normal;
+}
+/* Wide Latin letter-spacing breaks connected Arabic script — neutralise the
+   tracking utilities and mono/eyebrow labels when the page is Arabic. */
+[dir='rtl'] .eyebrow,
+[dir='rtl'] .mono,
+[dir='rtl'] [class*='tracking-'] {
+  letter-spacing: normal;
+}
+/* Horizontal arrow glyphs inside links point the other way in RTL. */
+[dir='rtl'] .arrow-link svg {
+  transform: scaleX(-1);
+}
