@@ -1,0 +1,4 @@
+User-Agent: *
+Allow: /
+
+Sitemap: https://talha-yaseen-dev.github.io/apex-technical-services/sitemap.xml
