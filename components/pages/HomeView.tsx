@@ -28,9 +28,21 @@ export default function HomeView({ lang }: { lang: Lang }) {
   return (
     <>
       {/* HERO */}
-      <section className="hero-fit border-b border-line bg-gradient-to-b from-[var(--paper)] to-[var(--paper2)]">
+      <section className="hero-fit relative overflow-hidden border-b border-line bg-gradient-to-b from-[var(--paper)] to-[var(--paper2)]">
+        {/* Faint blueprint grid, faded out with a radial mask toward the corner. */}
         <div
-          className="wrap sec-hero grid gap-10 items-center w-full"
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-50"
+          style={{
+            backgroundImage:
+              'linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px)',
+            backgroundSize: '46px 46px',
+            WebkitMaskImage: 'radial-gradient(85% 75% at 82% 6%, #000, transparent 72%)',
+            maskImage: 'radial-gradient(85% 75% at 82% 6%, #000, transparent 72%)',
+          }}
+        />
+        <div
+          className="wrap sec-hero relative z-10 grid gap-10 items-center w-full"
           style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))' }}
         >
           <div>
@@ -45,7 +57,7 @@ export default function HomeView({ lang }: { lang: Lang }) {
                 <WhatsAppIcon size={19} />
                 {d.whatsappPhoto}
               </a>
-              <a href={telHref} className="btn btn-ink">
+              <a href={telHref} className="btn btn-accent">
                 <PhoneIcon size={18} />
                 {d.callWorkshop}
               </a>
@@ -103,7 +115,7 @@ export default function HomeView({ lang }: { lang: Lang }) {
       </section>
 
       {/* PROCESS (dark) */}
-      <section className="bg-ink text-paper">
+      <section className="bg-dark text-paper">
         <div className="wrap sec">
           <div>
             <div className="mono text-[12px] tracking-[0.16em] text-accent-lite">{d.howItWorks}</div>
@@ -181,15 +193,18 @@ export default function HomeView({ lang }: { lang: Lang }) {
           className="border border-line2 rounded-[18px] overflow-hidden grid"
           style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))' }}
         >
-          <div className="p-[clamp(28px,4vw,48px)] bg-accent text-ink">
-            <div className="mono text-[12px] tracking-[0.16em] opacity-90">{d.amcEyebrow}</div>
-            <h2 className="title-2 mt-3 text-ink">{d.amcTitle}</h2>
+          <div
+            className="p-[clamp(28px,4vw,48px)] text-white"
+            style={{ background: 'linear-gradient(150deg, var(--accent), var(--accent-hover))' }}
+          >
+            <div className="mono text-[12px] tracking-[0.16em] opacity-80">{d.amcEyebrow}</div>
+            <h2 className="title-2 mt-3 text-white">{d.amcTitle}</h2>
             <p className="text-[16.5px] mt-[14px] opacity-90 max-w-[34em]">{d.amcLede}</p>
             <a
               href={waAmc}
               target="_blank"
               rel="noopener"
-              className="inline-flex items-center gap-[9px] mt-[22px] px-[22px] py-[13px] rounded-[10px] bg-ink text-paper hover:text-paper hover:bg-ink2 font-semibold transition-colors"
+              className="inline-flex items-center gap-[9px] mt-[22px] px-[22px] py-[13px] rounded-full bg-white text-accent-ink hover:text-accent-ink font-semibold transition-transform hover:-translate-y-[2px]"
             >
               {d.amcCta} <ArrowIcon size={15} className={flip} />
             </a>

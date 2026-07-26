@@ -75,7 +75,7 @@ export default function Header({ lang }: { lang: Lang }) {
     <>
       <header className="sticky top-0 z-[60] border-b border-line backdrop-blur-[10px] backdrop-saturate-150 bg-[color-mix(in_oklab,var(--paper)_92%,transparent)]">
         {/* utility bar */}
-        <div className="bg-ink text-paper">
+        <div className="bg-dark text-paper">
           <div className="wrap flex flex-wrap items-center justify-between gap-x-[22px] gap-y-[6px] py-[7px] mono text-[12px] tracking-[0.01em]">
             <div className="flex flex-wrap items-center gap-x-5 gap-y-[6px]">
               <a href={telHref} dir="ltr" className="text-paper hover:text-paper inline-flex items-center gap-[7px]">

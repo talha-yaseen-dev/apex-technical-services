@@ -4,7 +4,7 @@
 // (https://<user>.github.io/apex-technical-services/), so the app is served
 // from a base path rather than the domain root. `BASE_PATH` lets a root
 // deployment (or local dev) override it with an empty string.
-const basePath = process.env.BASE_PATH ?? '/apex-technical-services';
+const basePath = process.env.BASE_PATH ?? (process.env.NODE_ENV === 'production' ? '/apex-technical-services' : '');
 
 const nextConfig = {
   output: 'export',

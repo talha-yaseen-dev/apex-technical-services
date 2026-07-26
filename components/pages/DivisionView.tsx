@@ -91,7 +91,7 @@ export default function DivisionView({ slug, lang }: { slug: string; lang: Lang 
       </section>
 
       {/* PROCESS */}
-      <section className="bg-ink text-paper">
+      <section className="bg-dark text-paper">
         <div className="wrap sec-md">
           <h2 className="title-3 text-paper">{ui.ourProcess}</h2>
           <ProcessGrid lang={lang} variant="dark" />

@@ -6,27 +6,33 @@
    Design tokens — for the Apex Technical Services prototype.
    ------------------------------------------------------------------ */
 :root {
-  --ink: oklch(0.23 0.012 255);
-  --ink2: oklch(0.34 0.012 255);
-  --paper: oklch(0.986 0.003 95);
-  --paper2: oklch(0.965 0.004 95);
-  --panel: oklch(0.955 0.005 255);
-  --line: oklch(0.9 0.005 255);
-  --line2: oklch(0.82 0.007 255);
-  --muted: oklch(0.5 0.012 255);
-  /* Brand gold, taken from the Apex badge. Measured contrast ratios:
-       --accent      #d09a35  ink on it 6.73 ✓ · white on it 2.41 ✗ · on paper 2.41 ✗
-       --accent-ink  #7f5314  on paper 6.39 ✓ · white on it 6.39 ✓
-       --accent-soft #faefd6  ink on it 14.8 ✓
-       --accent-lite #ebc573  on ink 10.3 ✓
-     So: --accent is a FILL colour and always carries dark text; anything that is
-     itself text or an icon on a light background uses --accent-ink. */
-  --accent: oklch(0.72 0.13 79);
-  --accent-hover: oklch(0.64 0.125 76);
-  --accent-ink: oklch(0.48 0.095 70);
-  --accent-soft: oklch(0.955 0.035 88);
+  /* Cool blue-grey neutrals (hue 264) — from the "Apex Redesign" proposal. */
+  --ink: oklch(0.22 0.028 264);
+  --ink2: oklch(0.34 0.026 264);
+  --paper: oklch(0.985 0.004 264);
+  --paper2: oklch(0.965 0.006 264);
+  --panel: oklch(0.94 0.01 264);
+  --line: oklch(0.905 0.008 264);
+  --line2: oklch(0.83 0.012 264);
+  --muted: oklch(0.52 0.022 264);
+  /* Brand accent — deep teal. Measured sRGB + WCAG contrast:
+       --accent      #007781  white on it 5.31 ✓ — a FILL that carries WHITE text.
+       --accent-ink  #006d78  on paper 5.82 ✓ · white on it 6.07 ✓ — the text/icon
+                              shade, safe on light backgrounds and as a fill.
+       --accent-soft #d8f5f6  accent-ink on it 5.29 ✓ (pale badge tint)
+       --accent-lite #56ccd2  used only on the dark sections (on --dark 9.6 ✓)
+     So: --accent is a FILL colour that carries WHITE text (--accent-fg); anything
+     that is itself text or an icon on a light background uses --accent-ink, which
+     is dark enough to read on paper and to carry white. */
+  --accent: oklch(0.52 0.09 205);
+  --accent-hover: oklch(0.45 0.095 205);
+  --accent-ink: oklch(0.48 0.1 205);
+  --accent-soft: oklch(0.95 0.03 200);
+  --accent-lite: oklch(0.78 0.105 200);
+  --accent-fg: #fff;
   /* WhatsApp green, darkened from the brand #1fa855: white text on that is
-     only 3.09:1. #15803d gives 5.02:1 and still reads as WhatsApp. */
+     only 3.09:1. #15803d gives 5.02:1 and still reads as WhatsApp. (The redesign
+     mock's #1f8a4c is only 4.38:1, so we keep the darker, accessible green.) */
   --wa: #15803d;
   --wa-hover: #126a33;
 
@@ -35,14 +41,20 @@
      at >=1100px, where both header rows are guaranteed to stay single-line. */
   --header-h: 102px;
 
-  /* Shades used inside the dark (ink-background) sections. */
-  --accent-lite: oklch(0.84 0.11 85);
-  --dark-card: oklch(0.27 0.014 255);
-  --dark-line: oklch(0.4 0.02 255);
-  --dark-line2: oklch(0.34 0.014 255);
-  --dark-text: oklch(0.86 0.008 255);
-  --dark-text2: oklch(0.78 0.01 255);
-  --dark-text3: oklch(0.66 0.01 255);
+  /* Card corner radius shared across the redesign. */
+  --r: 16px;
+
+  /* Dark (near-black blue) sections — footer, process band, utility bar.
+     `--dark` is the section background; `--dark-card`/`--dark2` sits one step
+     above it so cards separate cleanly from the band behind them. */
+  --dark: oklch(0.19 0.03 264);
+  --dark2: oklch(0.24 0.032 264);
+  --dark-card: oklch(0.24 0.032 264);
+  --dark-line: oklch(0.34 0.03 264);
+  --dark-line2: oklch(0.3 0.028 264);
+  --dark-text: oklch(0.9 0.012 264);
+  --dark-text2: oklch(0.78 0.016 264);
+  --dark-text3: oklch(0.62 0.02 264);
 }
 
 @layer base {
@@ -80,8 +92,12 @@
     text-decoration: none;
   }
   a:hover {
-    /* not --accent: gold on paper is 2.41:1 */
+    /* --accent-hover, not --accent: the darker shade keeps link text ≥4.5:1 */
     color: var(--accent-hover);
+  }
+  ::selection {
+    background: var(--accent);
+    color: #fff;
   }
   img {
     max-width: 100%;
@@ -200,7 +216,7 @@
     align-items: center;
     gap: 10px;
     padding: 15px 24px;
-    border-radius: 12px;
+    border-radius: 100px;
     font-weight: 600;
     font-size: 16px;
     transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease,
@@ -238,13 +254,13 @@
   }
   .btn-accent {
     background: var(--accent);
-    color: var(--ink);
-    box-shadow: 0 10px 24px -16px color-mix(in oklab, var(--accent) 70%, transparent);
+    color: var(--accent-fg);
+    box-shadow: 0 12px 28px -16px color-mix(in oklab, var(--accent) 80%, transparent);
   }
   .btn-accent:hover {
     background: var(--accent-hover);
-    color: var(--ink);
-    box-shadow: 0 14px 30px -14px color-mix(in oklab, var(--accent) 60%, transparent);
+    color: var(--accent-fg);
+    box-shadow: 0 16px 34px -14px color-mix(in oklab, var(--accent) 70%, transparent);
   }
   .btn-outline {
     border: 1px solid var(--line2);

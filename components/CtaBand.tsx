@@ -6,11 +6,13 @@ import { t, type Lang } from '@/content/i18n';
 export default function CtaBand({ lang }: { lang: Lang }) {
   const d = t(lang);
   return (
-    // Gold band carries dark text — white on brand gold is only 2.4:1.
-    <section className="bg-accent">
-      <div className="wrap sec-md text-center text-ink">
-        <div className="mono text-[12px] tracking-[0.16em] opacity-90">{d.ctaEyebrow}</div>
-        <h2 className="font-display font-extrabold mt-[14px] text-[clamp(28px,4vw,46px)] max-w-[16em] mx-auto">
+    // Accent band carries white text — white on the vermilion accent is 4.7:1.
+    <section
+      style={{ background: 'linear-gradient(150deg, var(--accent), var(--accent-hover))' }}
+    >
+      <div className="wrap sec-md text-center text-white">
+        <div className="mono text-[12px] tracking-[0.16em] opacity-80">{d.ctaEyebrow}</div>
+        <h2 className="font-display font-extrabold mt-[14px] text-[clamp(28px,4vw,46px)] max-w-[16em] mx-auto text-white">
           {d.ctaTitle}
         </h2>
         <div className="flex flex-wrap gap-3 justify-center mt-7">

@@ -10,7 +10,7 @@ export default function Footer({ lang }: { lang: Lang }) {
   const d = t(lang);
   const isAr = lang === 'ar';
   return (
-    <footer className="bg-ink text-dark-text">
+    <footer className="bg-dark text-dark-text">
       <div className="wrap pt-[clamp(44px,5vw,72px)] pb-[30px]">
         <div className="grid gap-10" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))' }}>
           <div>

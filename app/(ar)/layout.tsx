@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from 'next/font/google';
+import { IBM_Plex_Sans_Arabic, Space_Mono } from 'next/font/google';
 import '../globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -19,9 +19,9 @@ const sansArabic = IBM_Plex_Sans_Arabic({
   variable: '--font-sans',
 });
 
-const mono = IBM_Plex_Mono({
+const mono = Space_Mono({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['400', '700'],
   display: 'swap',
   variable: '--font-mono',
 });

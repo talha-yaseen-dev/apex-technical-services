@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Archivo, IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
+import { Archivo, Space_Mono, Hanken_Grotesk } from 'next/font/google';
 import '../globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -16,16 +16,17 @@ const display = Archivo({
   variable: '--font-display',
 });
 
-const sans = IBM_Plex_Sans({
+const sans = Hanken_Grotesk({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-sans',
 });
 
-const mono = IBM_Plex_Mono({
+// Space Mono only ships regular (400) and bold (700).
+const mono = Space_Mono({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['400', '700'],
   display: 'swap',
   variable: '--font-mono',
 });
