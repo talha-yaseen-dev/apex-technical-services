@@ -1,32 +1,18 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { L, t, type Lang } from '@/content/i18n';
 import { asset } from '@/content/site';
 
-export function LogoMark({ size = 44 }: { size?: number }) {
-  return (
-    <Image
-      src={asset('/logo.png')}
-      alt=""
-      width={size}
-      height={size}
-      priority
-      unoptimized
-      className="flex-none"
-      style={{ width: size, height: size }}
-    />
-  );
-}
-
 /**
- * Apex badge + wordmark. The badge is the mark; the name stays live text so
- * it is selectable, indexable and legible at nav size.
+ * Apex wordmark logo (double-peak "A" + PEX) with the trade/locale subtitle
+ * beneath it. The wordmark ships in black for light surfaces and white for
+ * dark ones (footer). Served from /public so it works under the Pages basePath
+ * via asset().
  */
 export default function Logo({
   lang,
   short = false,
   onDark = false,
-  size = 44,
+  size = 26,
 }: {
   lang: Lang;
   short?: boolean;
@@ -36,24 +22,27 @@ export default function Logo({
   const d = t(lang);
   const sub = short ? d.brandSubShort : d.brandSub;
   const isAr = lang === 'ar';
+  const src = onDark ? '/logo-wordmark-white.png' : '/logo-wordmark.png';
   return (
     <Link
       href={L(lang, '/')}
       aria-label={isAr ? 'أبيكس — الصفحة الرئيسية' : 'Apex home'}
-      className={`flex items-center gap-3 ${onDark ? 'text-paper' : 'text-ink'}`}
+      className={`flex flex-col ${isAr ? 'items-end' : 'items-start'} gap-[4px] ${onDark ? 'text-paper' : 'text-ink'}`}
     >
-      <LogoMark size={size} />
-      <span className="flex flex-col leading-none">
-        <span className={`font-display font-extrabold text-[19px] tracking-[-0.01em] ${onDark ? 'text-paper' : ''}`}>
-          {isAr ? 'أبيكس' : 'APEX'}
-        </span>
-        <span
-          className={`mono text-[9.5px] mt-[3px] ${isAr ? 'tracking-normal' : 'tracking-[0.28em]'} ${
-            onDark ? 'text-dark-text3' : 'text-muted'
-          }`}
-        >
-          {sub}
-        </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={asset(src)}
+        alt="APEX"
+        height={size}
+        style={{ height: size, width: 'auto' }}
+        className="block"
+      />
+      <span
+        className={`mono text-[9px] ${isAr ? 'tracking-normal' : 'tracking-[0.22em]'} ${
+          onDark ? 'text-dark-text3' : 'text-muted'
+        }`}
+      >
+        {sub}
       </span>
     </Link>
   );
