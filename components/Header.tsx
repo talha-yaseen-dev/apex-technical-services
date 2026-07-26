@@ -12,11 +12,19 @@ import { L, otherLangPath, t, type Lang } from '@/content/i18n';
 export default function Header({ lang }: { lang: Lang }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
   const d = t(lang);
   const divisions = getDivisions(lang);
+
+  // Marks a nav link "pending" the instant it's clicked, so it stays visibly
+  // active (spinner + dimmed) through the client-side transition instead of
+  // looking dead until the next page finishes loading.
+  const startNav = (href: string) => {
+    if (href !== pathname) setPendingHref(href);
+  };
 
   // Hover-intent: open immediately, but close on a short delay so the pointer
   // can cross the small gap from the trigger to the panel without it snapping shut.
@@ -41,6 +49,7 @@ export default function Header({ lang }: { lang: Lang }) {
   useEffect(() => {
     setMenuOpen(false);
     setServicesOpen(false);
+    setPendingHref(null);
   }, [pathname]);
 
   useEffect(() => {
@@ -74,6 +83,7 @@ export default function Header({ lang }: { lang: Lang }) {
   return (
     <>
       <header className="sticky top-0 z-[60] border-b border-line backdrop-blur-[10px] backdrop-saturate-150 bg-[color-mix(in_oklab,var(--paper)_92%,transparent)]">
+        <TopProgressBar active={pendingHref !== null} pathname={pathname || '/'} />
         {/* utility bar */}
         <div className="bg-dark text-paper">
           <div className="wrap flex flex-wrap items-center justify-between gap-x-[22px] gap-y-[6px] py-[7px] mono text-[12px] tracking-[0.01em]">
@@ -118,21 +128,30 @@ export default function Header({ lang }: { lang: Lang }) {
           <Logo lang={lang} />
 
           <nav className="desk-only items-center gap-1" aria-label={lang === 'ar' ? 'التنقل الرئيسي' : 'Primary'}>
-            <NavLink href={L(lang, '/')}>{d.navHome}</NavLink>
+            <NavLink href={L(lang, '/')} pending={pendingHref === L(lang, '/')} onNav={startNav}>
+              {d.navHome}
+            </NavLink>
 
             <div ref={menuRef} onMouseEnter={openMenu} onMouseLeave={scheduleClose} onFocus={openMenu} onBlur={scheduleClose}>
               <Link
                 href={L(lang, '/services')}
+                onClick={() => startNav(L(lang, '/services'))}
                 aria-haspopup="true"
                 aria-expanded={servicesOpen}
                 aria-controls="svc-menu"
-                className="px-[13px] py-[9px] rounded-[7px] font-medium text-[15px] text-ink hover:text-ink inline-flex items-center gap-[6px] hover:bg-panel"
+                aria-busy={pendingHref === L(lang, '/services')}
+                className="px-[13px] py-[9px] rounded-[7px] font-medium text-[15px] text-ink hover:text-ink inline-flex items-center gap-[6px] hover:bg-panel transition active:scale-[0.97] data-[pending=true]:opacity-60"
+                data-pending={pendingHref === L(lang, '/services')}
               >
                 {d.navServices}
-                <ChevronIcon
-                  size={12}
-                  className={`transition-transform duration-200 ${servicesOpen ? 'rotate-180' : ''}`}
-                />
+                {pendingHref === L(lang, '/services') ? (
+                  <SpinnerIcon size={12} />
+                ) : (
+                  <ChevronIcon
+                    size={12}
+                    className={`transition-transform duration-200 ${servicesOpen ? 'rotate-180' : ''}`}
+                  />
+                )}
               </Link>
 
               {servicesOpen && (
@@ -174,16 +193,28 @@ export default function Header({ lang }: { lang: Lang }) {
             </div>
 
             {NAV.map((n) => (
-              <NavLink key={n.href} href={L(lang, n.href)}>
+              <NavLink key={n.href} href={L(lang, n.href)} pending={pendingHref === L(lang, n.href)} onNav={startNav}>
                 {n.label}
               </NavLink>
             ))}
 
-            <LangSwitch href={switchHref} label={d.langName} title={d.switchTo} />
+            <LangSwitch
+              href={switchHref}
+              label={d.langName}
+              title={d.switchTo}
+              pending={pendingHref === switchHref}
+              onNav={startNav}
+            />
           </nav>
 
           <div className="mob-only items-center gap-2">
-            <LangSwitch href={switchHref} label={d.langName} title={d.switchTo} />
+            <LangSwitch
+              href={switchHref}
+              label={d.langName}
+              title={d.switchTo}
+              pending={pendingHref === switchHref}
+              onNav={startNav}
+            />
             <button
               type="button"
               className="flex items-center justify-center w-11 h-11 border border-line2 bg-paper rounded-[9px] cursor-pointer text-ink"
@@ -221,37 +252,54 @@ export default function Header({ lang }: { lang: Lang }) {
             </div>
 
             <div className="overflow-y-auto px-3 pt-[10px] pb-5">
-              <DrawerLink href={L(lang, '/')}>{d.navHome}</DrawerLink>
+              <DrawerLink href={L(lang, '/')} pending={pendingHref === L(lang, '/')} onNav={startNav}>
+                {d.navHome}
+              </DrawerLink>
 
               <div className="mono text-[10.5px] tracking-[0.2em] text-muted px-3 pt-4 pb-[6px]">{d.divisions}</div>
-              {divisions.map((div) => (
-                <div key={div.slug} className="mb-1">
-                  <Link
-                    href={L(lang, `/services/${div.slug}`)}
-                    className="flex gap-3 px-3 py-[11px] rounded-[9px] text-ink hover:text-ink hover:bg-panel items-baseline"
-                  >
-                    <span className="mono text-[12px] text-accent-ink">{div.num}</span>
-                    <span className="font-semibold text-[15.5px]">{div.title}</span>
-                  </Link>
-                  <div className="flex flex-col">
-                    {div.subservices.map((s) => (
-                      <Link
-                        key={s.slug}
-                        href={L(lang, `/service/${s.slug}`)}
-                        className="ps-[38px] pe-3 py-[7px] rounded-[9px] text-[13.5px] text-muted hover:text-ink hover:bg-panel"
-                      >
-                        {s.name}
-                      </Link>
-                    ))}
+              {divisions.map((div) => {
+                const divHref = L(lang, `/services/${div.slug}`);
+                return (
+                  <div key={div.slug} className="mb-1">
+                    <Link
+                      href={divHref}
+                      onClick={() => startNav(divHref)}
+                      aria-busy={pendingHref === divHref}
+                      className="flex gap-3 px-3 py-[11px] rounded-[9px] text-ink hover:text-ink hover:bg-panel items-baseline transition active:scale-[0.98] data-[pending=true]:opacity-60"
+                      data-pending={pendingHref === divHref}
+                    >
+                      <span className="mono text-[12px] text-accent-ink">{div.num}</span>
+                      <span className="font-semibold text-[15.5px]">{div.title}</span>
+                      {pendingHref === divHref && <SpinnerIcon size={13} className="ms-auto" />}
+                    </Link>
+                    <div className="flex flex-col">
+                      {div.subservices.map((s) => {
+                        const sHref = L(lang, `/service/${s.slug}`);
+                        return (
+                          <Link
+                            key={s.slug}
+                            href={sHref}
+                            onClick={() => startNav(sHref)}
+                            aria-busy={pendingHref === sHref}
+                            className="ps-[38px] pe-3 py-[7px] rounded-[9px] text-[13.5px] text-muted hover:text-ink hover:bg-panel transition active:scale-[0.98] data-[pending=true]:opacity-60"
+                            data-pending={pendingHref === sHref}
+                          >
+                            {s.name}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="h-px bg-line mx-3 my-3" />
 
-              <DrawerLink href={L(lang, '/services')}>{d.allServices}</DrawerLink>
+              <DrawerLink href={L(lang, '/services')} pending={pendingHref === L(lang, '/services')} onNav={startNav}>
+                {d.allServices}
+              </DrawerLink>
               {NAV.map((n) => (
-                <DrawerLink key={n.href} href={L(lang, n.href)}>
+                <DrawerLink key={n.href} href={L(lang, n.href)} pending={pendingHref === L(lang, n.href)} onNav={startNav}>
                   {n.label}
                 </DrawerLink>
               ))}
@@ -263,35 +311,106 @@ export default function Header({ lang }: { lang: Lang }) {
   );
 }
 
-function LangSwitch({ href, label, title }: { href: string; label: string; title: string }) {
+type NavProps = { pending?: boolean; onNav?: (href: string) => void };
+
+function LangSwitch({ href, label, title, pending, onNav }: { href: string; label: string; title: string } & NavProps) {
   return (
     <Link
       href={href}
       title={title}
       lang={label === 'English' ? 'en' : 'ar'}
-      className="inline-flex items-center gap-[7px] ps-[13px] pe-[15px] py-[8px] rounded-full border border-line2 text-ink hover:text-ink hover:border-accent hover:bg-panel font-medium text-[14px] whitespace-nowrap transition-colors"
+      onClick={() => onNav?.(href)}
+      aria-busy={pending}
+      data-pending={pending}
+      className="inline-flex items-center gap-[7px] ps-[13px] pe-[15px] py-[8px] rounded-full border border-line2 text-ink hover:text-ink hover:border-accent hover:bg-panel font-medium text-[14px] whitespace-nowrap transition active:scale-[0.96] data-[pending=true]:opacity-60"
     >
-      <GlobeIcon size={15} className="flex-none opacity-80" />
+      {pending ? <SpinnerIcon size={14} className="flex-none" /> : <GlobeIcon size={15} className="flex-none opacity-80" />}
       {label}
     </Link>
   );
 }
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({ href, children, pending, onNav }: { href: string; children: React.ReactNode } & NavProps) {
   return (
     <Link
       href={href}
-      className="px-[13px] py-[9px] rounded-[7px] font-medium text-[15px] text-ink hover:text-ink hover:bg-panel"
+      onClick={() => onNav?.(href)}
+      aria-busy={pending}
+      data-pending={pending}
+      className="px-[13px] py-[9px] rounded-[7px] font-medium text-[15px] text-ink hover:text-ink hover:bg-panel inline-flex items-center gap-[6px] transition active:scale-[0.97] data-[pending=true]:opacity-60"
     >
       {children}
+      {pending && <SpinnerIcon size={12} />}
     </Link>
   );
 }
 
-function DrawerLink({ href, children }: { href: string; children: React.ReactNode }) {
+function DrawerLink({ href, children, pending, onNav }: { href: string; children: React.ReactNode } & NavProps) {
   return (
-    <Link href={href} className="block p-3 rounded-[9px] font-semibold text-base text-ink hover:text-ink hover:bg-panel">
-      {children}
+    <Link
+      href={href}
+      onClick={() => onNav?.(href)}
+      aria-busy={pending}
+      data-pending={pending}
+      className="flex items-center gap-2 p-3 rounded-[9px] font-semibold text-base text-ink hover:text-ink hover:bg-panel transition active:scale-[0.98] data-[pending=true]:opacity-60"
+    >
+      <span className="flex-1">{children}</span>
+      {pending && <SpinnerIcon size={14} />}
     </Link>
+  );
+}
+
+function SpinnerIcon({ size = 14, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      focusable="false"
+      className={`animate-spin ${className}`}
+    >
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2.5" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// Thin bar that eases in the instant a nav link is clicked and completes
+// once `pathname` actually changes — visible proof the click registered
+// while the next page loads, instead of the header looking unresponsive.
+function TopProgressBar({ active, pathname }: { active: boolean; pathname: string }) {
+  const [width, setWidth] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const prevPath = useRef(pathname);
+
+  useEffect(() => {
+    if (!active) return;
+    setVisible(true);
+    setWidth(0);
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setWidth(78)));
+    return () => cancelAnimationFrame(id);
+  }, [active]);
+
+  useEffect(() => {
+    if (prevPath.current === pathname) return;
+    prevPath.current = pathname;
+    setWidth(100);
+    const timer = setTimeout(() => {
+      setVisible(false);
+      setWidth(0);
+    }, 260);
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
+  if (!visible) return null;
+  return (
+    <div className="absolute inset-x-0 top-0 h-[2.5px] overflow-hidden pointer-events-none z-[80]">
+      <div
+        className="h-full bg-accent"
+        style={{ width: `${width}%`, transition: `width ${width === 100 ? 150 : 550}ms ease-out` }}
+      />
+    </div>
   );
 }
