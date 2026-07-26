@@ -13,6 +13,7 @@ export default function Header({ lang }: { lang: Lang }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [openDivision, setOpenDivision] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
@@ -73,6 +74,8 @@ export default function Header({ lang }: { lang: Lang }) {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
+    // Sub-categories start collapsed each time the drawer opens.
+    if (!menuOpen) setOpenDivision(null);
     return () => {
       document.body.style.overflow = '';
     };
@@ -259,36 +262,49 @@ export default function Header({ lang }: { lang: Lang }) {
               <div className="mono text-[10.5px] tracking-[0.2em] text-muted px-3 pt-4 pb-[6px]">{d.divisions}</div>
               {divisions.map((div) => {
                 const divHref = L(lang, `/services/${div.slug}`);
+                const isOpen = openDivision === div.slug;
                 return (
                   <div key={div.slug} className="mb-1">
-                    <Link
-                      href={divHref}
-                      onClick={() => startNav(divHref)}
-                      aria-busy={pendingHref === divHref}
-                      className="flex gap-3 px-3 py-[11px] rounded-[9px] text-ink hover:text-ink hover:bg-panel items-baseline transition active:scale-[0.98] data-[pending=true]:opacity-60"
-                      data-pending={pendingHref === divHref}
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-controls={`drawer-div-${div.slug}`}
+                      onClick={() => setOpenDivision(isOpen ? null : div.slug)}
+                      className="w-full flex gap-3 px-3 py-[11px] rounded-[9px] text-ink hover:bg-panel items-baseline transition active:scale-[0.98]"
                     >
                       <span className="mono text-[12px] text-accent-ink">{div.num}</span>
-                      <span className="font-semibold text-[15.5px]">{div.title}</span>
-                      {pendingHref === divHref && <SpinnerIcon size={13} className="ms-auto" />}
-                    </Link>
-                    <div className="flex flex-col">
-                      {div.subservices.map((s) => {
-                        const sHref = L(lang, `/service/${s.slug}`);
-                        return (
-                          <Link
-                            key={s.slug}
-                            href={sHref}
-                            onClick={() => startNav(sHref)}
-                            aria-busy={pendingHref === sHref}
-                            className="ps-[38px] pe-3 py-[7px] rounded-[9px] text-[13.5px] text-muted hover:text-ink hover:bg-panel transition active:scale-[0.98] data-[pending=true]:opacity-60"
-                            data-pending={pendingHref === sHref}
-                          >
-                            {s.name}
-                          </Link>
-                        );
-                      })}
-                    </div>
+                      <span className="font-semibold text-[15.5px] flex-1 text-start">{div.title}</span>
+                      <ChevronIcon size={13} className={`flex-none mt-[3px] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {isOpen && (
+                      <div id={`drawer-div-${div.slug}`} className="flex flex-col">
+                        <Link
+                          href={divHref}
+                          onClick={() => startNav(divHref)}
+                          aria-busy={pendingHref === divHref}
+                          className="ps-[38px] pe-3 py-[7px] rounded-[9px] text-[13.5px] font-semibold text-accent-ink hover:bg-panel transition active:scale-[0.98] data-[pending=true]:opacity-60 inline-flex items-center gap-2"
+                          data-pending={pendingHref === divHref}
+                        >
+                          {d.openDivision}
+                          {pendingHref === divHref && <SpinnerIcon size={12} />}
+                        </Link>
+                        {div.subservices.map((s) => {
+                          const sHref = L(lang, `/service/${s.slug}`);
+                          return (
+                            <Link
+                              key={s.slug}
+                              href={sHref}
+                              onClick={() => startNav(sHref)}
+                              aria-busy={pendingHref === sHref}
+                              className="ps-[38px] pe-3 py-[7px] rounded-[9px] text-[13.5px] text-muted hover:text-ink hover:bg-panel transition active:scale-[0.98] data-[pending=true]:opacity-60"
+                              data-pending={pendingHref === sHref}
+                            >
+                              {s.name}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })}
