@@ -36,7 +36,7 @@ export const C = {
 };
 
 /** Canonical origin — the GitHub Pages URL this prototype is deployed to. */
-export const SITE_URL = 'https://talha-yaseen-hush.github.io/apex-technical-services';
+export const SITE_URL = 'https://talha-yaseen-dev.github.io/apex-technical-services';
 
 export const telHref = `tel:${C.phoneRaw}`;
 export const mailHref = `mailto:${C.email}`;
